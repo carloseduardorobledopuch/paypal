@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pay with PayPal</title>
+
+<style>
+body {
+  font-family: Arial;
+  text-align: center;
+  margin-top: 80px;
+}
+.box {
+  display: inline-block;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>MATH Masterclass By Makatin</h2>
+  <p>Price: 9.00 USD</p>
+  <div id="paypal-button-container"></div>
+</div>
+
+<script>
+/* ===================== CONFIG ===================== */
+const PAYPAL_CLIENT_ID = "ATLLcwkSHL1pvhifSAmWIebXgT2L8tLCL8_k3f8XSloulObCDD30AeTb3sqXs5-Mj6pf73l-foLc7wKI"; // 👈 EASY TO CHANGE
+const CURRENCY = "USD";
+const PRICE = "30.00";
+const PRODUCT_NAME = "MATH Masterclass By Makatin";
+
+const SUCCESS_URL = "https://your-site.com/success";
+const CANCEL_URL = "https://your-site.com/cancel";
+
+/* ===================== LOAD PAYPAL ===================== */
+function loadPayPal() {
+  const script = document.createElement("script");
+  script.src =
+    "https://www.paypal.com/sdk/js?client-id=" +
+    PAYPAL_CLIENT_ID +
+    "&currency=" +
+    CURRENCY;
+
+  script.onload = initPayPal;
+  document.body.appendChild(script);
+}
+
+/* ===================== BUTTONS ===================== */
+function initPayPal() {
+  paypal.Buttons({
+
+    createOrder: (data, actions) => {
+      return actions.order.create({
+        intent: "CAPTURE",
+        purchase_units: [{
+          description: PRODUCT_NAME,
+          amount: {
+            currency_code: CURRENCY,
+            value: PRICE
+          }
+        }]
+      });
+    },
+
+    onApprove: (data, actions) => {
+      return actions.order.capture().then(details => {
+        window.location.href =
+          SUCCESS_URL + "?name=" + details.payer.name.given_name;
+      });
+    },
+
+    onCancel: () => {
+      window.location.href = CANCEL_URL;
+    },
+
+    onError: (err) => {
+      console.error(err);
+      alert("Something went wrong");
+    }
+
+  }).render("#paypal-button-container");
+}
+
+/* ===================== START ===================== */
+window.onload = loadPayPal;
+</script>
+
+</body>
+</html>
